@@ -5,17 +5,22 @@ FROM node
 #   - 명령어 실행에 Default 경로 설정
 WORKDIR /app
 
+# COPY는 일종의 코드 스냅샷과 같음. Build 명령어로 이미지가 만들어졌다면, 수정이 어려움 ( Image = Read-only )
+#
 # 2개의 경로
 #   (1) 이미지화 시킬 파일 경로, 이미지로 만들 때 읽을 파일 경로
 #   (2) 도커 내부 이미지 저장 경로 ( root 경로는 권장하지 않음 )
 #       - Work Directory를 따로 지정하지 않으면, 명령어는 해당 경로에서 실행
 #       - WORKDIR 지정 시, 상대 경로로 사용됨
 
-COPY . /app
-# COPY . ./
+# 빌드 시, Layer 캐싱 활용 (소스코드만 변경될 경우 저장된 캐시 사용)
+COPY package.json /app
 
 # 실행 명령어
 RUN npm install
+
+COPY . /app
+# COPY . ./
 
 # 포트 지정 ( From Isolated System to Local System)
 #   - 문서로서 기록 ( 어떤 포트에서 동작하면 좋은지 가이드 용도) > 실제 동작은 하지 않음
@@ -25,6 +30,8 @@ EXPOSE 80
 
 # RUN vs CMD
 #   - RUN : 이미지 생성 시, 실행
+#           문자열 형식
 #   - CMD : 이미지로부터 컨테이너 실행 시, 실행 ( 항상 마지막에 명시 )
+#           배열 형식
 CMD ["node", "server.js"]
 
